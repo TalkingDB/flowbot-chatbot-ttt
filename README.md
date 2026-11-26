@@ -5,6 +5,11 @@ The TalkingDB document chat, built as a configuration for the [Flowbot](https://
 ![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue)
 ![Runs on: Flowbot](https://img.shields.io/badge/runs%20on-flowbot-555)
 
+<p align="center">
+  <img src="docs/images/demo.gif" alt="A short animated tour of flowbot-chatbot-ttt: what it is, how to start, and which page to read next">
+</p>
+<p align="center"><sub>A short tour: what it is, how to start, and what to read next.</sub></p>
+
 | Start here | Go deeper |
 | :--- | :--- |
 | [How an answer is made](#how-an-answer-is-made) | [Architecture: prompt, streaming, sources](docs/architecture.md) |
@@ -77,6 +82,12 @@ This repository is not run on its own. Flowbot loads it from its `configuration/
 ## Contributor
 
 Mayank Gupta, mayank.g@smarter.codes
+
+## Support TalkingDB
+
+If flowbot-chatbot-ttt saved you time, please [give it a star](https://github.com/TalkingDB/flowbot-chatbot-ttt) ⭐. Stars help other developers find the project.
+
+Found a bug, or a document it gets wrong? [Open an issue](https://github.com/TalkingDB/flowbot-chatbot-ttt/issues/new). We are always here to help and open to a conversation. Explore the TalkingDB applications at [talkingdb.io](https://talkingdb.io/#applications).
 
 ## License
 

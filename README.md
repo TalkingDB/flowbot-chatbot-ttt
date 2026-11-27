@@ -6,9 +6,9 @@ The TalkingDB document chat, built as a configuration for the [Flowbot](https://
 ![Runs on: Flowbot](https://img.shields.io/badge/runs%20on-flowbot-555)
 
 <p align="center">
-  <img src="docs/images/demo.gif" alt="A short animated tour of flowbot-chatbot-ttt: what it is, how to start, and which page to read next">
+  <img src="docs/images/demo.gif" alt="Animated diagram: a question is sent to TalkingDB for the top 5 passages, the model answers from those passages only, and every answer has a quick answer, extra context and follow-up questions">
 </p>
-<p align="center"><sub>A short tour: what it is, how to start, and what to read next.</sub></p>
+<p align="center"><sub>Drawn from <code>server/index.js</code> and <code>server/prompt.js</code>.</sub></p>
 
 | Start here | Go deeper |
 | :--- | :--- |

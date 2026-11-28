@@ -1,0 +1,18 @@
+sequenceDiagram
+    accTitle: One answer from the TTT chatbot
+    accDescr: Flowbot calls start. The bot posts the question and graph ids to TTT and keeps elements with text. It builds the prompt, streams the language model's answer through onToken, and returns the text, the source documents and token counts. Empty results lead to a fixed fallback message.
+    autonumber
+    participant F as Flowbot /api/chat
+    participant S as server/index.js
+    participant T as TTT /v1/queries
+    participant L as Language model
+    F->>S: start(handler, question, onToken)
+    S->>T: graph_ids, text, max_results 5 (Authorization from handler)
+    T-->>S: elements
+    S->>S: keep elements with non empty content
+    S->>L: prompt with excerpts, temperature 0, stream
+    loop tokens
+        L-->>S: chunk
+        S-->>F: onToken(chunk)
+    end
+    S-->>F: text, sourceDocuments, tokens

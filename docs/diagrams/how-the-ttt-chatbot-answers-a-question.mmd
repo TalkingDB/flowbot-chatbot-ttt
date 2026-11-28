@@ -1,0 +1,10 @@
+flowchart TB
+    accTitle: How the TTT chatbot answers a question
+    accDescr: Flowbot calls start with the question and the user's graph ids. If there are no graph ids the bot asks for a document. Otherwise it queries TTT for up to five relevant elements, builds a prompt that allows only those excerpts, streams an answer from the language model at temperature zero, and returns the answer with the source elements.
+    Q["Question + graph ids<br>from Flowbot"] --> G{"any documents?"}
+    G -- no --> UP["'Please upload a<br>document to train'"]
+    G -- yes --> TTT["POST TTT_URL<br>up to 5 elements"]
+    TTT --> P["Prompt: answer ONLY<br>from these excerpts"]
+    P --> LLM["Language model<br>temperature 0, streamed"]
+    LLM --> A["Answer + source documents"]
+    TTT -- "no elements" --> FB["Fallback message"]

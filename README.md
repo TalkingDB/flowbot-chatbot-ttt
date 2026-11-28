@@ -1,87 +1,47 @@
-# Flowbot Chatbot TTT
+<!-- short-readme -->
+<h1 align="center">flowbot-chatbot-ttt</h1>
 
-The TalkingDB document chat, built as a configuration for the [Flowbot](https://github.com/TalkingDB/flowbot-framework) framework. A user asks a question about their uploaded documents; this chatbot finds the relevant passages with the TalkingDB Text to Tree (TTT) service and has a language model write a short answer from those passages only.
+<p align="center"><b>Chat with your documents. Answers come only from the passages TalkingDB finds.</b></p>
 
-![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue)
-![Runs on: Flowbot](https://img.shields.io/badge/runs%20on-flowbot-555)
+<p align="center"><a href="#try-it">Try it</a> · <a href="docs/architecture.md">How it works</a> · <a href="docs/troubleshooting.md">Troubleshooting</a> · <a href="docs/reference.md">Full reference</a></p>
+
+<p align="center"><a href="https://github.com/TalkingDB/flowbot-chatbot-ttt/stargazers"><img src="https://img.shields.io/github/stars/TalkingDB/flowbot-chatbot-ttt?style=social" alt="GitHub stars"></a> <a href="https://www.gnu.org/licenses/agpl-3.0.html"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="AGPL-3.0"></a></p>
 
 <p align="center">
   <img src="docs/images/demo.gif" alt="Animated diagram: a question is sent to TalkingDB for the top 5 passages, the model answers from those passages only, and every answer has a quick answer, extra context and follow-up questions">
 </p>
 <p align="center"><sub>Drawn from <code>server/index.js</code> and <code>server/prompt.js</code>.</sub></p>
 
-| Start here | Go deeper |
+A [flowbot-framework](https://github.com/TalkingDB/flowbot-framework) configuration: a user asks about their uploaded documents, [module-ttt](https://github.com/TalkingDB/module-ttt) finds the top passages, and a language model writes a short answer from those passages only, with sources.
+
+## What it does
+
+- **Find**: the question goes to TTT for the top 5 passages.
+- **Answer**: a quick answer, extra context when needed, and follow-up questions, all from the passages ([how it answers](docs/architecture.md)).
+- **Say so**: when the documents do not cover a question, it says that, with no made-up sources.
+
+## Try it
+
+```bash
+# inside a flowbot-framework checkout
+git clone https://github.com/TalkingDB/flowbot-chatbot-ttt.git configuration/flowbot-chatbot-ttt
+yarn dev                 # http://localhost:3000/?chat-id=flowbot-chatbot-ttt
+```
+
+Set `TTT_URL` and the model key in `server/.env`; see [troubleshooting](docs/troubleshooting.md).
+
+## Where it fits
+
+Runs inside [flowbot-framework](https://github.com/TalkingDB/flowbot-framework); answers from [module-ttt](https://github.com/TalkingDB/module-ttt); [sdk-talkingdb](https://github.com/TalkingDB/sdk-talkingdb) makes the same queries from Python.
+
+## Learn more
+
+| Page | Read it to |
 | :--- | :--- |
-| [How an answer is made](#how-an-answer-is-made) | [Architecture: prompt, streaming, sources](docs/architecture.md) |
-| [Set it up](#set-it-up) | [Troubleshooting](docs/troubleshooting.md) |
-| [What this repo is not](#what-this-repo-is-not) | [Flowbot configuration contract](https://github.com/TalkingDB/flowbot-framework/blob/main/docs/architecture.md#the-configuration-contract) |
-
-All pages: [docs/](docs/README.md).
-
-## How an answer is made
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/how-the-ttt-chatbot-answers-a-question-dark.svg">
-  <img alt="Flowbot calls start with the question and the user's graph ids. If there are no graph ids the bot asks for a document. Otherwise it queries TTT for up to five relevant elements, builds a prompt that allows only those excerpts, streams an answer from the language model at temperature zero, and returns the answer with the source elements." src="docs/images/how-the-ttt-chatbot-answers-a-question.svg">
-</picture>
-
-<sub>Diagram source: [how-the-ttt-chatbot-answers-a-question.mmd](docs/diagrams/how-the-ttt-chatbot-answers-a-question.mmd). Edit it and re-render with the steps in [docs/diagrams](docs/diagrams/README.md).</sub>
-
-In words: TTT finds the passages, the language model only rewrites them into an answer, and the passages are returned as sources so the user can check them.
-
-The prompt asks for a short "Quick Answer" and, only when needed, "Additional Context". If the excerpts do not cover the question, the model must reply with a fixed message saying so, rather than guessing ([`server/index.js`](server/index.js)).
-
-## Set it up
-
-This repository is not run on its own. Flowbot loads it from its `configuration/` folder.
-
-1. Place it where Flowbot's [`deploy.sh`](https://github.com/TalkingDB/flowbot-framework/blob/main/deploy.sh) copies configurations from:
-
-   ```text
-   parent/
-   ├── flowbot-framework/
-   └── configurations/
-       └── flowbot-chatbot-ttt/      <- this repository
-   ```
-
-2. Create `server/.env` from [`server/.env.example`](server/.env.example):
-
-   | Variable | Value |
-   | :--- | :--- |
-   | `TTT_URL` | The TTT query endpoint, for example `http://localhost:8090/v1/queries` |
-   | `GPT_BEARER_TOKEN` | API key for the language model |
-
-   The TTT API key is not set here. Flowbot passes it in the request headers, from its own `NEXT_PUBLIC_TDB_TTT_SERVICE_AUTHORIZATION` setting. [`webapp/.env.example`](webapp/.env.example) is empty today.
-
-   The server reads its `.env` from `configuration/flowbot-chatbot-ttt/server/.env` inside Flowbot, so the folder name must stay `flowbot-chatbot-ttt`.
-
-3. From `flowbot-framework`, run `./deploy.sh` ([Docker](https://docs.docker.com/get-started/docker-overview/)) or copy the folder into `configuration/` and run `yarn dev`.
-
-4. Open Flowbot with `?chat-id=flowbot-chatbot-ttt`, upload a document, and ask a question.
-
-## What this repo is not
-
-- **Not a search engine.** Retrieval is done by [module-ttt](https://github.com/TalkingDB/module-ttt); this repository only calls it.
-- **Not a free answer generator.** The model is told to answer only from the retrieved excerpts and to say when they do not cover the question.
-- **Not standalone.** It needs Flowbot to provide sign in, the chat window, history and streaming.
-
-## Related repositories
-
-| Repository | Relationship |
-| :--- | :--- |
-| [flowbot-framework](https://github.com/TalkingDB/flowbot-framework) | The app this configuration runs inside |
-| [module-ttt](https://github.com/TalkingDB/module-ttt) | The document search behind every answer |
-| [sdk-talkingdb](https://github.com/TalkingDB/sdk-talkingdb) | The same TTT queries from Python |
-
-## Further reading
-
-- [OpenAI chat completions API](https://platform.openai.com/docs/api-reference/chat)
-- [Retrieval augmented generation](https://en.wikipedia.org/wiki/Retrieval-augmented_generation)
-- [Prompt injection (OWASP)](https://genai.owasp.org/llmrisk/llm01-prompt-injection/), which the prompt's "reference text only" rule guards against
-
-## Contributor
-
-Mayank Gupta, mayank.g@smarter.codes
+| [How it works](docs/architecture.md) | see the parts and how data moves |
+| [Troubleshooting](docs/troubleshooting.md) | fix a problem |
+| [Full reference](docs/reference.md) | read everything that used to be on this page |
+| [All docs](docs/README.md) | see every page |
 
 ## Support TalkingDB
 
